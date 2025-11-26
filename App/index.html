@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mood Tracker</title>
+  <link rel="icon" href="mood.ico">
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <!-- LOCK SCREEN -->
+  <div id="lockScreen">
+    <h2>Journal Locked</h2>
+    <p style="max-width: 280px; margin-bottom: 0.75rem; font-size: 0.9rem; color:#e5e7eb;">
+      Enter your password to unlock and decrypt your journal.
+    </p>
+    <input id="lockInput" type="password" placeholder="Password">
+    <button id="lockBtn">Unlock</button>
+    <div id="lockError" style="display:none;">Password required.</div>
+  </div>
+
+  <!-- CHANGE PASSWORD MODAL -->
+  <div id="pwModal" class="modal-backdrop" style="display:none;">
+    <div class="modal">
+      <h2>Change password</h2>
+      <p class="subtext">
+        You must enter your current password to set a new one.
+      </p>
+
+      <label>
+        <span>Current password</span>
+        <input type="password" id="pwOldInput">
+      </label>
+
+      <label>
+        <span>New password</span>
+        <input type="password" id="pwNewInput">
+      </label>
+
+      <label>
+        <span>Confirm new password</span>
+        <input type="password" id="pwNewConfirmInput">
+      </label>
+
+      <p class="subtext" style="font-size:0.8rem;">
+        Use at least 8 characters. Longer is better. Don’t reuse a password from anywhere else.
+      </p>
+
+      <div id="pwModalError" style="display:none;"></div>
+
+      <div style="margin-top:0.8rem; display:flex; gap:0.5rem; justify-content:flex-end;">
+        <button type="button" class="btn secondary small" id="pwModalCancel">
+          Cancel
+        </button>
+        <button type="button" class="btn small" id="pwModalSave">
+          Save password
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <header>
+    <div>
+      <h1>This journal belongs to:</h1>
+      <span>Person</span>
+    </div>
+    <div class="file-status">
+      <button type="button" class="btn small secondary" id="connectFileBtn">
+        Connect data file
+      </button>
+      <button type="button" class="btn small secondary" id="changePwBtn">
+        Change password
+      </button>
+      <span id="fileStatus"><span class="file-status-strong">No file connected</span></span>
+      <span id="todayText"></span>
+    </div>
+  </header>
+
+  <main>
+    <div class="grid">
+      <!-- LEFT: FORM -->
+      <section class="card">
+        <h2 id="formTitle">Log today’s mood</h2>
+        <p class="subtext" id="formSubtitle"></p>
+
+        <div class="prompt-box">
+          <div class="prompt-label">Prompt of the day</div>
+          <div class="prompt-text" id="promptText"></div>
+        </div>
+
+        <form id="moodForm">
+          <label>
+            <span>Date</span>
+            <input type="date" id="dateInput" required>
+          </label>
+
+          <label>
+            <div class="mood-display">
+              <span class="mood-score">
+                Rating: <span id="ratingValue">5</span>/10
+              </span>
+              <span class="mood-emoji" id="ratingEmoji">😐</span>
+            </div>
+            <input type="range" id="ratingInput" min="1" max="10" value="5">
+          </label>
+
+          <label>
+            <span>Mood label</span>
+            <select id="labelInput">
+              <option>Meh</option>
+              <option>Calm</option>
+              <option>Happy</option>
+              <option>Stressed</option>
+              <option>Sad</option>
+              <option>Angry</option>
+              <option>Anxious</option>
+              <option>Exhausted</option>
+            </select>
+          </label>
+
+          <label>
+            <span>Diary entry</span>
+            <textarea id="noteInput" placeholder="Dump your thoughts for this moment. What happened? How do you feel about it?"></textarea>
+          </label>
+
+          <label class="inline-label">
+            <input type="checkbox" id="importantInput">
+            <span>⭐ Mark this entry as important</span>
+          </label>
+
+          <div>
+            <button type="submit" class="btn" id="submitBtn">Save entry</button>
+            <button type="button" class="btn secondary" id="clearFormBtn">Clear form</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- RIGHT: CALENDAR + STATS + SEARCH + DAY DETAILS -->
+      <section class="card">
+        <h2>Mood calendar</h2>
+        <p class="subtext">Each day shows your logs. Click a day to read or edit that day’s entries.</p>
+
+        <div class="search-bar">
+          <input id="searchInput" type="text" placeholder="Search diary (text, label, date)…">
+        </div>
+
+        <div class="calendar-header">
+          <div class="calendar-month" id="monthLabel"></div>
+          <div class="calendar-nav">
+            <button type="button" id="prevMonthBtn">◀</button>
+            <button type="button" id="nextMonthBtn">▶</button>
+          </div>
+        </div>
+
+        <div class="calendar-weekdays">
+          <span>Sun</span>
+          <span>Mon</span>
+          <span>Tue</span>
+          <span>Wed</span>
+          <span>Thu</span>
+          <span>Fri</span>
+          <span>Sat</span>
+        </div>
+
+        <div class="calendar-body" id="calendarBody"></div>
+
+        <div class="stats-row">
+          <div class="stat">
+            <div class="stat-label">Avg mood (month)</div>
+            <div class="stat-value" id="statAvg">–</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Entries this month</div>
+            <div class="stat-value" id="statCount">0</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Current streak</div>
+            <div class="stat-value" id="statCurrentStreak">0 days</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Longest streak</div>
+            <div class="stat-value" id="statLongestStreak">0 days</div>
+          </div>
+        </div>
+
+        <div class="day-details">
+          <div class="day-details-header">
+            <h3 id="dayDetailsDate">Select a day</h3>
+            <div>
+              <button type="button" class="btn inline neutral" id="clearDayBtn">
+                Delete day’s entries
+              </button>
+              <button type="button" class="btn inline danger" id="clearAllBtn">
+                Clear all
+              </button>
+            </div>
+          </div>
+          <div id="dayDetailsEmpty" class="empty">No entries for this day.</div>
+          <ul id="dayDetailsList" class="day-details-list"></ul>
+        </div>
+
+        <div class="search-results" id="searchResults">
+          <div class="search-results-title">Search results</div>
+        </div>
+      </section>
+    </div>
+  </main>
+</body>
+</html>
